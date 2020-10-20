@@ -12,6 +12,6 @@ public interface PersonsClienteRest {
   public Person getPerson(@PathVariable String documentNumber);
   
   @GetMapping("/core/persons/updateFingerPerson/{id}")
-  public void insertFingerPrint(@PathVariable Long id);
+  public void insertFingerPrint(@PathVariable Integer id);
 
 }

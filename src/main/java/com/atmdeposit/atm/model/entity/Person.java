@@ -10,12 +10,13 @@ import java.io.Serializable;
 
 @ApiModel("Person")
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class Person implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private Integer  id;
     private String document;
     private Boolean fingerprint;
     private Boolean blacklist;
