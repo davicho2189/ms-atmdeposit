@@ -54,23 +54,20 @@ public class AtmDepositService implements IAtmDepositService {
    * getInformacionAtm.
    **/
   public Single<AtmDepositResponse> getInformacionAtm(String documentNumber)
-          throws PersonException, AccountException, CardException, FingerPrintException {
-
-
+      throws PersonException, AccountException, CardException, FingerPrintException {
 
     AtmDepositResponse atmDepositResponse = new AtmDepositResponse();
     List<AccountDto> accountDtos = new ArrayList<>();
 
     FingerPrintRequest fingerPrintRequest = new FingerPrintRequest(documentNumber);
     Person person = getPerson(documentNumber);
-    log.info("getPerson ->" + person.toString());
-    FingerPrint fingerPrint = 
-        getFingerPrint(fingerPrintRequest, person.getFingerprint());
+
+    FingerPrint fingerPrint = getFingerPrint(fingerPrintRequest, person.getFingerprint());
     List<Card> cards = getCard(documentNumber);
-    List<Account> accounts = getAccounts(cards);
-    
+    final List<Account> accounts = getAccounts(cards);
+    accounts.stream().map(ac -> accountDtos.add(new AccountDto(ac.getAccountNumber())))
+      .collect(Collectors.toList());
     atmDepositResponse.setFingerprintEntityName(fingerPrint.getEntityName());
-    log.info(accountDtos.toString());
     atmDepositResponse.setValidAccounts(accountDtos);
     atmDepositResponse.setCustomerAmount(accounts.stream().mapToDouble(x -> x.getAmount()).sum());
 
@@ -86,36 +83,23 @@ public class AtmDepositService implements IAtmDepositService {
     return cardClienteRest.getCards(documentNumber).stream().filter(x -> x.getActive() == true)
         .collect(Collectors.toList());
   }
-
-  public List<Account> getAccounts(List<Card> cards) {
   
-    List<Account> accounts = new ArrayList();
+  /**   
+   * getAccounts.
+   **/
+  public List<Account> getAccounts(List<Card> cards) {
 
-    Observable.just(cards)
-          //  .subscribeOn(Schedulers.io())
-            .flatMapIterable(c->c)
-            .map(c->accountClienteRest.getAccount(c.getCardNumber()))
-            .subscribe(x-> accounts.addAll(x.blockingGet()));
+    List<Account> accounts = new ArrayList<Account>();
 
-//    for (Card card : cards)
-//    {
-//      Single.just(card)
-//              .subscribeOn(Schedulers.io())
-//              .flatMap(c ->
-//                 accountClienteRest.getAccount(c.getCardNumber()).subscribeOn(Schedulers.io())
-//              ).subscribe(x->log.info("@==>"+x.toString()));
-////      Single.just(accountClienteRest.getAccount(card.getCardNumber()))
-////              //.subscribeOn(Schedulers.io())
-////              .flatMap(c->c)
-////              .subscribe();
-//    }
-     log.info("---->" + accounts.toString());
-    return  accounts;
+    Observable.just(cards).flatMapIterable(c -> c)
+      .map(c -> accountClienteRest.getAccount(c.getCardNumber()))
+        .subscribe(x -> accounts.addAll(x));
+    return accounts;
 
   }
 
   public FingerPrint getFingerPrint(FingerPrintRequest fingerPrintRequest, Boolean tipo) 
-        throws FingerPrintException{
+      throws FingerPrintException {
     return tipo ? fingerPrintRest.getFingerPrint(fingerPrintRequest)
         : fingerPrintReniecRest.getFingerPrint(fingerPrintRequest);
   }

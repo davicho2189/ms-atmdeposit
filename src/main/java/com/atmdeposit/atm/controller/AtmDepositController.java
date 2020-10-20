@@ -4,7 +4,6 @@ import com.atmdeposit.atm.model.dto.AtmDepositRequest;
 import com.atmdeposit.atm.model.dto.AtmDepositResponse;
 import com.atmdeposit.atm.repository.service.IAtmDepositService;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.ribbon.proxy.annotation.Hystrix;
 import io.reactivex.Single;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,7 +34,7 @@ public class AtmDepositController {
   }
 
   public Single<AtmDepositResponse>
-  getAtmDeposits(@RequestBody AtmDepositRequest atmDepositRequest) throws Exception {
+      getAtmDeposits(@RequestBody AtmDepositRequest atmDepositRequest) throws Exception {
     return atmDepositService.getInformacionAtm(atmDepositRequest.getDocumentNumber());
   }
 
