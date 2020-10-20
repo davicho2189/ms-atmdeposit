@@ -3,6 +3,8 @@ package com.atmdeposit.atm.controller;
 import com.atmdeposit.atm.model.dto.AtmDepositRequest;
 import com.atmdeposit.atm.model.dto.AtmDepositResponse;
 import com.atmdeposit.atm.repository.service.IAtmDepositService;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.ribbon.proxy.annotation.Hystrix;
 import io.reactivex.Single;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,9 +27,15 @@ public class AtmDepositController {
   @ApiOperation(value = "Obtener las tarjetas", response = AtmDepositResponse.class)
   @ApiResponses(value = { @ApiResponse(code = 200, message = "Success|OK"),
       @ApiResponse(code = 404, message = "No se tarjetas") })
+  @HystrixCommand(fallbackMethod = "getAtmDeposits")
   @PostMapping("/deposits")
   public Single<AtmDepositResponse> 
-      getCards(@RequestBody AtmDepositRequest atmDepositRequest) throws Exception {
+      getAtmDeposit(@RequestBody AtmDepositRequest atmDepositRequest) throws Exception {
+    return atmDepositService.getInformacionAtm(atmDepositRequest.getDocumentNumber());
+  }
+
+  public Single<AtmDepositResponse>
+  getAtmDeposits(@RequestBody AtmDepositRequest atmDepositRequest) throws Exception {
     return atmDepositService.getInformacionAtm(atmDepositRequest.getDocumentNumber());
   }
 

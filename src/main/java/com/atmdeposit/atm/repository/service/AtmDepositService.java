@@ -14,8 +14,12 @@ import com.atmdeposit.atm.model.entity.FingerPrint;
 import com.atmdeposit.atm.model.entity.Person;
 import com.atmdeposit.atm.model.exceptions.AccountException;
 import com.atmdeposit.atm.model.exceptions.CardException;
+import com.atmdeposit.atm.model.exceptions.FingerPrintException;
 import com.atmdeposit.atm.model.exceptions.PersonException;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,26 +54,20 @@ public class AtmDepositService implements IAtmDepositService {
    * getInformacionAtm.
    **/
   public Single<AtmDepositResponse> getInformacionAtm(String documentNumber)
-      throws PersonException, AccountException, CardException {
+          throws PersonException, AccountException, CardException, FingerPrintException {
 
-    log.info("Person ->" + documentNumber);
+
 
     AtmDepositResponse atmDepositResponse = new AtmDepositResponse();
     List<AccountDto> accountDtos = new ArrayList<>();
 
     FingerPrintRequest fingerPrintRequest = new FingerPrintRequest(documentNumber);
     Person person = getPerson(documentNumber);
+    log.info("getPerson ->" + person.toString());
     FingerPrint fingerPrint = 
         getFingerPrint(fingerPrintRequest, person.getFingerprint());
     List<Card> cards = getCard(documentNumber);
-    List<Account> accounts = new ArrayList<>();
-    cards.stream()
-      .map(c -> accounts.addAll(getAccounts(c.getCardNumber()))).collect(Collectors.toList());
-    log.info(accounts.toString());
-    
-      
-    accounts.stream()
-      .map(x -> accountDtos.add(new AccountDto(x.getAccountNumber()))).collect(Collectors.toList());
+    List<Account> accounts = getAccounts(cards);
     
     atmDepositResponse.setFingerprintEntityName(fingerPrint.getEntityName());
     log.info(accountDtos.toString());
@@ -80,6 +78,7 @@ public class AtmDepositService implements IAtmDepositService {
   }
 
   public Person getPerson(String documentNumber) throws PersonException {
+
     return personsClienteRest.getPerson(documentNumber);
   }
 
@@ -88,25 +87,35 @@ public class AtmDepositService implements IAtmDepositService {
         .collect(Collectors.toList());
   }
 
-  public List<Account> getAccounts(String documentNumber) {
+  public List<Account> getAccounts(List<Card> cards) {
   
     List<Account> accounts = new ArrayList();
-    Single<List<Account>> aa=  accountClienteRest.getAccount(documentNumber)
-        .subscribeOn(Schedulers.io())
-        .doOnSubscribe {
-          view.showText("started!")
-        }.doOnSuccess {
-           view.showText(it)
-        }
-        .subscribe();
-        
-    accounts.addAll(aa.blockingGet());
-    
-   return accounts;
+
+    Observable.just(cards)
+          //  .subscribeOn(Schedulers.io())
+            .flatMapIterable(c->c)
+            .map(c->accountClienteRest.getAccount(c.getCardNumber()))
+            .subscribe(x-> accounts.addAll(x.blockingGet()));
+
+//    for (Card card : cards)
+//    {
+//      Single.just(card)
+//              .subscribeOn(Schedulers.io())
+//              .flatMap(c ->
+//                 accountClienteRest.getAccount(c.getCardNumber()).subscribeOn(Schedulers.io())
+//              ).subscribe(x->log.info("@==>"+x.toString()));
+////      Single.just(accountClienteRest.getAccount(card.getCardNumber()))
+////              //.subscribeOn(Schedulers.io())
+////              .flatMap(c->c)
+////              .subscribe();
+//    }
+     log.info("---->" + accounts.toString());
+    return  accounts;
+
   }
 
   public FingerPrint getFingerPrint(FingerPrintRequest fingerPrintRequest, Boolean tipo) 
-        throws PersonException {
+        throws FingerPrintException{
     return tipo ? fingerPrintRest.getFingerPrint(fingerPrintRequest)
         : fingerPrintReniecRest.getFingerPrint(fingerPrintRequest);
   }
