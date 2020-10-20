@@ -18,14 +18,9 @@ import com.atmdeposit.atm.model.exceptions.FingerPrintException;
 import com.atmdeposit.atm.model.exceptions.PersonException;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,16 +52,15 @@ public class AtmDepositService implements IAtmDepositService {
       throws PersonException, AccountException, CardException, FingerPrintException {
 
     AtmDepositResponse atmDepositResponse = new AtmDepositResponse();
-    List<AccountDto> accountDtos = new ArrayList<>();
-
-    FingerPrintRequest fingerPrintRequest = new FingerPrintRequest(documentNumber);
+    List<AccountDto> accountDtos = new ArrayList<>();    
     Person person = getPerson(documentNumber);
-
-    FingerPrint fingerPrint = getFingerPrint(fingerPrintRequest, person.getFingerprint());
+    log.info("==>getPerson");
+    FingerPrint fingerPrint = getFingerPrint(person);
+    log.info("==>getFingerPrint");
     List<Card> cards = getCard(documentNumber);
     final List<Account> accounts = getAccounts(cards);
-    accounts.stream().map(ac -> accountDtos.add(new AccountDto(ac.getAccountNumber())))
-      .collect(Collectors.toList());
+    accounts.stream()
+    .map(ac -> accountDtos.add(new AccountDto(ac.getAccountNumber()))).collect(Collectors.toList());
     atmDepositResponse.setFingerprintEntityName(fingerPrint.getEntityName());
     atmDepositResponse.setValidAccounts(accountDtos);
     atmDepositResponse.setCustomerAmount(accounts.stream().mapToDouble(x -> x.getAmount()).sum());
@@ -83,8 +77,8 @@ public class AtmDepositService implements IAtmDepositService {
     return cardClienteRest.getCards(documentNumber).stream().filter(x -> x.getActive() == true)
         .collect(Collectors.toList());
   }
-  
-  /**   
+
+  /**
    * getAccounts.
    **/
   public List<Account> getAccounts(List<Card> cards) {
@@ -97,11 +91,19 @@ public class AtmDepositService implements IAtmDepositService {
     return accounts;
 
   }
-
-  public FingerPrint getFingerPrint(FingerPrintRequest fingerPrintRequest, Boolean tipo) 
+  
+  /**
+   *getFingerPrint.
+   ***/
+  public FingerPrint getFingerPrint(Person person)
       throws FingerPrintException {
-    return tipo ? fingerPrintRest.getFingerPrint(fingerPrintRequest)
-        : fingerPrintReniecRest.getFingerPrint(fingerPrintRequest);
+
+    if (person.getFingerprint()) {
+      return fingerPrintRest.getFingerPrint(new FingerPrintRequest(person.getDocument()));
+    } else {
+      personsClienteRest.insertFingerPrint(person.getId());
+      return fingerPrintReniecRest.getFingerPrint(new FingerPrintRequest(person.getDocument()));
+    }
   }
 
 }

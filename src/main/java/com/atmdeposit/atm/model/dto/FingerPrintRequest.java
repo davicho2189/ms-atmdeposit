@@ -15,5 +15,5 @@ import lombok.ToString;
 @ToString
 public class FingerPrintRequest {
 
-    private String document;
+  private String document;
 }

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "servicio-fingerprintsReniec")
 public interface FingerPrintReniecRest {
 
-  @PostMapping("/reniec/validate")
+  @PostMapping("/external/reniec/validate")
   public FingerPrint getFingerPrint(@RequestBody FingerPrintRequest fingerPrint);
 
 }
