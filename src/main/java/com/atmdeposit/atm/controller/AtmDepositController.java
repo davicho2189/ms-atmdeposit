@@ -2,7 +2,7 @@ package com.atmdeposit.atm.controller;
 
 import com.atmdeposit.atm.model.dto.AtmDepositRequest;
 import com.atmdeposit.atm.model.dto.AtmDepositResponse;
-import com.atmdeposit.atm.repository.service.IAtmDepositService;
+import com.atmdeposit.atm.repository.service.AtmDepositService;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import io.reactivex.Single;
 import io.swagger.annotations.Api;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AtmDepositController {
 
   @Autowired
-  private IAtmDepositService atmDepositService;
+  private AtmDepositService atmDepositService;
 
   @ApiOperation(value = "Obtener las tarjetas", response = AtmDepositResponse.class)
   @ApiResponses(value = { @ApiResponse(code = 200, message = "Success|OK"),
@@ -33,9 +33,9 @@ public class AtmDepositController {
     return atmDepositService.getInformacionAtm(atmDepositRequest.getDocumentNumber());
   }
 
-  public Single<AtmDepositResponse>
-      getAtmDeposits(@RequestBody AtmDepositRequest atmDepositRequest) throws Exception {
-    return atmDepositService.getInformacionAtm(atmDepositRequest.getDocumentNumber());
-  }
+//  public Single<AtmDepositResponse>
+//      getAtmDeposits(@RequestBody AtmDepositRequest atmDepositRequest) throws Exception {
+//    return atmDepositService.getInformacionAtm(atmDepositRequest.getDocumentNumber());
+//  }
 
 }

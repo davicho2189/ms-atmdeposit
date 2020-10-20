@@ -7,7 +7,7 @@ import com.atmdeposit.atm.model.exceptions.FingerPrintException;
 import com.atmdeposit.atm.model.exceptions.PersonException;
 import io.reactivex.Single;
 
-public interface IAtmDepositService {
+public interface AtmDepositService {
 
   public Single<AtmDepositResponse> getInformacionAtm(String documentNumber)
           throws PersonException, AccountException, CardException, FingerPrintException;

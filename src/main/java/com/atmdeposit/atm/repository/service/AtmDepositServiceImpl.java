@@ -27,8 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service("AtmDepositServiceFeign")
-public class AtmDepositServiceImpl implements IAtmDepositService {
+@Service
+public class AtmDepositServiceImpl implements AtmDepositService {
 
   @Autowired
   private PersonsClienteRest personsClienteRest;
