@@ -1,11 +1,12 @@
 package com.atmdeposit.atm.model.dto;
 
-import com.atmdeposit.atm.model.entity.Account;
 import io.swagger.annotations.ApiModel;
-import lombok.*;
-
-import java.math.BigDecimal;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @ApiModel("AtmDepositResponse")
 @Getter
@@ -15,9 +16,8 @@ import java.util.List;
 @ToString
 public class AtmDepositResponse {
 
-	    private String fingerprintEntityName;
-	    private List<AccountDto> validAccounts;
-	    private Double customerAmount;
-	
-	
+  private String fingerprintEntityName;
+  private List<AccountDto> validAccounts;
+  private Double customerAmount;
+
 }

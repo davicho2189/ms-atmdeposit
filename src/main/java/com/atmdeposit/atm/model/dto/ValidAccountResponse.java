@@ -7,7 +7,6 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @ToString
-public class ValidAccountResponse
-{
-   private String accountNumber;
+public class ValidAccountResponse {
+  private String accountNumber;
 }

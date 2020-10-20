@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Account {	
-	
-    private Double amount;   
-    private String accountNumber;
+public class Account {
+
+  private Double amount;
+  private String accountNumber;
 
 }
