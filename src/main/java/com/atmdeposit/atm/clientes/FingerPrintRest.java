@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface FingerPrintRest {	
 	
 	@PostMapping("/core/fingerprints/validate")
-	public Single<FingerPrint>   GetFingerPrint(@RequestBody FingerPrintRequest fingerprint);
+	public FingerPrint getFingerPrint(@RequestBody FingerPrintRequest fingerPrint);
 	
 }

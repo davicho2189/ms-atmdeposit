@@ -1,4 +1,4 @@
-package com.atmdeposit.atm.repository.Service;
+package com.atmdeposit.atm.repository.service;
 
 import com.atmdeposit.atm.model.dto.AtmDepositResponse;
 import com.atmdeposit.atm.model.exceptions.AccountException;
@@ -8,5 +8,6 @@ import io.reactivex.Single;
 
 public interface IAtmDepositService {
 
-    public Single<AtmDepositResponse> GetInformacionAtm(String documentNumber) throws PersonException, AccountException, CardException;
+  public Single<AtmDepositResponse> getInformacionAtm(String documentNumber)
+      throws PersonException, AccountException, CardException;
 }

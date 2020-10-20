@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface FingerPrintReniecRest {
 	
 	@PostMapping("/reniec/validate")
-	public Single<FingerPrint> GetFingerPrint(@RequestBody FingerPrintRequest fingerPrint);
+	public FingerPrint getFingerPrint(@RequestBody FingerPrintRequest fingerPrint);
 	
 }
