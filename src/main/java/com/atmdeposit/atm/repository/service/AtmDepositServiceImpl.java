@@ -133,12 +133,12 @@ public class AtmDepositServiceImpl implements AtmDepositService {
    cards.add(new Card("1111222233334442",true));
    cards.add(new Card("1111222233334443",true));
 
-       Observable.just(cards) // encapsular
-               .flatMapIterable(x -> x)
-               .map(c-> accounts.add(accountClienteRest.getAccount(c.getCardNumber())))
-               .subscribeOn(Schedulers.newThread())
-               .subscribe(System.out::println);
-
+            for (Card c : cards) {
+                //Single.just(accountClienteRest.getAccount(c.getCardNumber()));
+                log.info(Single.just(accountClienteRest.getAccount(c.getCardNumber()))
+                        .subscribeOn(Schedulers.io())
+                        .blockingGet().toString());
+            }
    log.info("getAccounts-->" + accounts.toString());
    return accounts;
    }
