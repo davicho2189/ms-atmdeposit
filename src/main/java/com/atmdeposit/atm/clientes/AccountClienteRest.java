@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface AccountClienteRest {
 
   @GetMapping("/core/accounts/{cardNumber}")
-  public List<Account> getAccount(@PathVariable String cardNumber);
+  public Account getAccount(@PathVariable String cardNumber);
 
 }

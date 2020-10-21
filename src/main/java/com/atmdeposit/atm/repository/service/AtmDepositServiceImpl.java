@@ -1,5 +1,13 @@
 package com.atmdeposit.atm.repository.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import io.reactivex.Observable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.atmdeposit.atm.clientes.AccountClienteRest;
 import com.atmdeposit.atm.clientes.CardClienteRest;
 import com.atmdeposit.atm.clientes.FingerPrintReniecRest;
@@ -16,15 +24,11 @@ import com.atmdeposit.atm.model.exceptions.AccountException;
 import com.atmdeposit.atm.model.exceptions.CardException;
 import com.atmdeposit.atm.model.exceptions.FingerPrintException;
 import com.atmdeposit.atm.model.exceptions.PersonException;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import rx.Scheduler;
 
 @Slf4j
 @Service
@@ -52,12 +56,16 @@ public class AtmDepositServiceImpl implements AtmDepositService {
       throws PersonException, AccountException, CardException, FingerPrintException {
 
     AtmDepositResponse atmDepositResponse = new AtmDepositResponse();
-    List<AccountDto> accountDtos = new ArrayList<>();    
+    List<AccountDto> accountDtos = new ArrayList<>();
+
+
     Person person = getPerson(documentNumber);
-    log.info("==>getPerson");
-    FingerPrint fingerPrint = getFingerPrint(person);
-    log.info("==>getFingerPrint");
+
+    FingerPrint fingerPrint = person.getFingerprint() ?
+            getFingerPrint(person) : getFingerPrintReniec(person);
+
     List<Card> cards = getCard(documentNumber);
+
     final List<Account> accounts = getAccounts(cards);
     accounts.stream()
     .map(ac -> accountDtos.add(new AccountDto(ac.getAccountNumber()))).collect(Collectors.toList());
@@ -83,27 +91,88 @@ public class AtmDepositServiceImpl implements AtmDepositService {
    **/
   public List<Account> getAccounts(List<Card> cards) {
 
-    List<Account> accounts = new ArrayList<Account>();
+    log.info("getAccounts--> Inicia");
+    List<Account> accounts = new ArrayList<>();
 
-    Observable.just(cards).flatMapIterable(c -> c)
-      .map(c -> accountClienteRest.getAccount(c.getCardNumber()))
-        .subscribe(x -> accounts.addAll(x));
-    return accounts;
-
+    cards.parallelStream()
+            .map(c->accounts.add(accountClienteRest.getAccount(c.getCardNumber())))
+            .collect(Collectors.toList());
+     log.info("getAccounts-->" + accounts.toString());
+     return accounts;
   }
+
   
   /**
    *getFingerPrint.
    ***/
   public FingerPrint getFingerPrint(Person person)
       throws FingerPrintException {
-
-    if (person.getFingerprint()) {
       return fingerPrintRest.getFingerPrint(new FingerPrintRequest(person.getDocument()));
-    } else {
+  }
+
+  /**
+   *getFingerPrint.
+   ***/
+  public FingerPrint getFingerPrintReniec(Person person)
+          throws FingerPrintException {
       personsClienteRest.insertFingerPrint(person.getId());
       return fingerPrintReniecRest.getFingerPrint(new FingerPrintRequest(person.getDocument()));
-    }
+
   }
+
+  /**
+   * getAccounts.
+   **/
+   @Override
+   public List<Account> getAccountTests() {
+
+   log.info("getAccounts--> Inicia");
+   List<Account> accounts = new ArrayList<>();
+   List<Card> cards = new ArrayList<>();
+   cards.add(new Card("1111222233334441",true));
+   cards.add(new Card("1111222233334442",true));
+   cards.add(new Card("1111222233334443",true));
+
+       Observable.just(cards) // encapsular
+               .flatMapIterable(x -> x)
+               .map(c-> accounts.add(accountClienteRest.getAccount(c.getCardNumber())))
+               .subscribeOn(Schedulers.newThread())
+               .subscribe(System.out::println);
+
+   log.info("getAccounts-->" + accounts.toString());
+   return accounts;
+   }
+
+/*
+  /**
+   * getAccounts.
+   **-/
+  @Override
+  public List<Account> getAccountTests() {
+
+    log.info("getAccounts--> Inicia");
+    List<Account> accounts = new ArrayList<>();
+    List<Card> cards = new ArrayList<>();
+    cards.add(new Card("1111222233334441",true));
+    cards.add(new Card("1111222233334442",true));
+    cards.add(new Card("1111222233334443",true));
+    log.info(cards.toString());
+    cards.parallelStream()
+            .map(c->accounts.add(accountClienteRest.getAccount(c.getCardNumber())))
+            .collect(Collectors.toList());
+//    cards.stream().map(x-> Single.just(x)
+//            .subscribeOn(Schedulers.newThread())
+//            .map(c-> {
+//                      log.info(c.getCardNumber());
+//                      accounts.add(accountClienteRest.getAccount(c.getCardNumber()));
+//
+//                              return null;
+//                    }
+//
+//            ).subscribe()).collect(Collectors.toList());
+    log.info("getAccounts-->" + accounts.toString());
+    return accounts;
+  }
+  */
 
 }

@@ -5,10 +5,7 @@ package com.atmdeposit.atm.repository.service;
 //import static org.junit.jupiter.api.Assertions.assertTrue;
 //import static org.mockito.Mockito.when;
 
-import com.atmdeposit.atm.clientes.AccountClienteRest;
-import com.atmdeposit.atm.clientes.CardClienteRest;
-import com.atmdeposit.atm.clientes.FingerPrintReniecRest;
-import com.atmdeposit.atm.clientes.PersonsClienteRest;
+import com.atmdeposit.atm.clientes.*;
 import com.atmdeposit.atm.model.dto.AccountDto;
 import com.atmdeposit.atm.model.dto.AtmDepositResponse;
 import com.atmdeposit.atm.model.dto.FingerPrintRequest;
@@ -45,9 +42,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.util.AssertionErrors.assertNull;
 
 
 @Slf4j
@@ -69,6 +69,9 @@ public class AtmDepositServiceImplTest {
   private AccountClienteRest accountClienteRest;
 
   @Mock
+  private FingerPrintRest fingerPrintRest;
+
+  @Mock
   private FingerPrintReniecRest fingerPrintReniecRest;
 
   @Test
@@ -88,9 +91,6 @@ public class AtmDepositServiceImplTest {
             Single.just(atmDepositServiceImplTest.getInformacionAtm("46181585"))
             .test()
             .assertResult();
-//
-//   // assertEquals(atmDepositServiceImplTest.getCard("46181585").size(), 4);
-
   }
 
   @Test
@@ -122,27 +122,41 @@ public class AtmDepositServiceImplTest {
   @Test
   public void getAccounts() {
 
-    List<Card> cards = new ArrayList<>();
-    cards.add(new Card("123", true));
-    cards.add(new Card("12345", true));
-
-    List<Account> accounts = new ArrayList<>();
-    accounts.add(new Account(10.0, "123"));
-    accounts.add(new Account(10.0, "123"));
-    when(accountClienteRest.getAccount("123")).thenReturn(accounts);
-    assertEquals(2,accounts.size());
+//    List<Card> cards = new ArrayList<>();
+//    cards.add(new Card("123", true));
+//    cards.add(new Card("12345", true));
+//
+//    Account accounts =new Account(10.0, "123");
+//    accounts.add(new Account(10.0, "123"));
+//    accounts.add(new Account(10.0, "123"));
+//    when(accountClienteRest.getAccount("123")).thenReturn(accounts);
+//    assertEquals(2,accounts.size());
   }
 
   @Test
-  public void getFingerPrint() throws Exception {
+  public void getFingerPrintif() throws Exception {
 
-    Person p = new Person(1, "46181585", true, true);
-    FingerPrint fingerRequest = new FingerPrint("core", true);
+    Person p = new Person(1, "10000000", true, true);
 
-    when(fingerPrintReniecRest.getFingerPrint(new FingerPrintRequest("46181585")))
-            .thenReturn(fingerRequest);
-    FingerPrint finger2= atmDepositServiceImplTest.getFingerPrint(p);
-    Assert.notNull(finger2);
+    lenient().when(fingerPrintRest.getFingerPrint(new FingerPrintRequest("10000000")))
+            .thenReturn(new FingerPrint("core", true));
+    FingerPrint fingerPrint = new FingerPrint();
+    atmDepositServiceImplTest.getFingerPrintReniec(p);
 
+    assertNotNull(fingerPrint);
   }
+
+  @Test
+  public void getFingerPrintelse() throws Exception {
+
+    Person p = new Person(1, "46181585", false, true);
+    lenient().when(fingerPrintRest.getFingerPrint(new FingerPrintRequest("10000000")))
+            .thenReturn(new FingerPrint("core", true));
+
+     FingerPrint fingerPrint = new FingerPrint();
+             atmDepositServiceImplTest.getFingerPrintReniec(p);
+
+     assertNotNull(fingerPrint);
+  }
+
 }
