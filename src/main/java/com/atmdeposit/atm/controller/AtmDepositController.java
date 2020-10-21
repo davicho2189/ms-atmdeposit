@@ -29,17 +29,17 @@ public class AtmDepositController {
   @ApiOperation(value = "Obtener las tarjetas", response = AtmDepositResponse.class)
   @ApiResponses(value = { @ApiResponse(code = 200, message = "Success|OK"),
       @ApiResponse(code = 404, message = "No se tarjetas") })
-  @HystrixCommand(fallbackMethod = "getAtmDeposits")
+  //@HystrixCommand(fallbackMethod = "getAtmDeposits")
   @PostMapping("/deposits")
   public Single<AtmDepositResponse> 
       getAtmDeposit(@RequestBody AtmDepositRequest atmDepositRequest) throws Exception {
     return atmDepositService.getInformacionAtm(atmDepositRequest.getDocumentNumber());
   }
 
-  public Single<AtmDepositResponse>
-      getAtmDeposits(@RequestBody AtmDepositRequest atmDepositRequest) throws Exception {
-    return atmDepositService.getInformacionAtm(atmDepositRequest.getDocumentNumber());
-  }
+//  public Single<AtmDepositResponse>
+//      getAtmDeposits(@RequestBody AtmDepositRequest atmDepositRequest) throws Exception {
+//    return atmDepositService.getInformacionAtm(atmDepositRequest.getDocumentNumber());
+//  }
 
   @PostMapping("/test")
   public Single<List<Account>>

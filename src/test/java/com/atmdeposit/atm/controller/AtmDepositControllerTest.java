@@ -62,8 +62,15 @@ public class AtmDepositControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonInString))
                 .andExpect(status().isOk());
-
-
-
     }
+    
+    
+    @Test
+    public void Test() throws Exception  {       
+
+      mockMvc.perform(
+          MockMvcRequestBuilders.post("/atm/test"))
+          .andExpect(status().isOk());   
+    }
+    
 }
