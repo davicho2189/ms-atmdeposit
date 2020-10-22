@@ -16,6 +16,6 @@ public interface AtmDepositService {
   public Single<AtmDepositResponse> getInformacionAtm(String documentNumber)
           throws PersonException, AccountException, CardException, FingerPrintException;
 
-  public List<Account> getAccountTests() throws AccountException;
+  public List<Account> getPruebas() throws AccountException;
 
 }

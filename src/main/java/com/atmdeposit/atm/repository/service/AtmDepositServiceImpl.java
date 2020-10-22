@@ -1,6 +1,7 @@
 package com.atmdeposit.atm.repository.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,8 +58,6 @@ public class AtmDepositServiceImpl implements AtmDepositService {
 
     AtmDepositResponse atmDepositResponse = new AtmDepositResponse();
     List<AccountDto> accountDtos = new ArrayList<>();
-
-
     Person person = getPerson(documentNumber);
 
     FingerPrint fingerPrint = person.getFingerprint() ?
@@ -69,6 +68,7 @@ public class AtmDepositServiceImpl implements AtmDepositService {
     final List<Account> accounts = getAccounts(cards);
     accounts.stream()
     .map(ac -> accountDtos.add(new AccountDto(ac.getAccountNumber()))).collect(Collectors.toList());
+
     atmDepositResponse.setFingerprintEntityName(fingerPrint.getEntityName());
     atmDepositResponse.setValidAccounts(accountDtos);
     atmDepositResponse.setCustomerAmount(accounts.stream().mapToDouble(x -> x.getAmount()).sum());
@@ -111,36 +111,40 @@ public class AtmDepositServiceImpl implements AtmDepositService {
   }
 
   /**
-   *getFingerPrint.
+   *getFingerPrintReniec.
    ***/
   public FingerPrint getFingerPrintReniec(Person person)
           throws FingerPrintException {
-      personsClienteRest.insertFingerPrint(person.getId());
+//      personsClienteRest.insertFingerPrint(person.getId());
       return fingerPrintReniecRest.getFingerPrint(new FingerPrintRequest(person.getDocument()));
 
   }
 
   /**
-   * getAccounts.
+   * getPruebas.
    **/
    @Override
-   public List<Account> getAccountTests() {
-
-   log.info("getAccounts--> Inicia");
-   List<Account> accounts = new ArrayList<>();
-   List<Card> cards = new ArrayList<>();
-   cards.add(new Card("1111222233334441",true));
-   cards.add(new Card("1111222233334442",true));
-   cards.add(new Card("1111222233334443",true));
-
-            for (Card c : cards) {
-                //Single.just(accountClienteRest.getAccount(c.getCardNumber()));
-                log.info(Single.just(accountClienteRest.getAccount(c.getCardNumber()))
-                        .subscribeOn(Schedulers.io())
-                        .blockingGet().toString());
-            }
-   log.info("getAccounts-->" + accounts.toString());
-   return accounts;
+   public List<Account> getPruebas() {
+	   	
+	   List<Account> accounts = new ArrayList<Account>(Arrays.asList(new Account(1000.0, "1111222233334441XX"),
+				new Account(500.00, "1111222233334442XX"), new Account(1500.00, "1111222233334431XX")));
+	   
+	   return accounts;
+//   log.info("getAccounts--> Inicia");
+//   List<Account> accounts = new ArrayList<>();
+//   List<Card> cards = new ArrayList<>();
+//   cards.add(new Card("1111222233334441",true));
+//   cards.add(new Card("1111222233334442",true));
+//   cards.add(new Card("1111222233334443",true));
+//
+//            for (Card c : cards) {
+//                //Single.just(accountClienteRest.getAccount(c.getCardNumber()));
+//                log.info(Single.just(accountClienteRest.getAccount(c.getCardNumber()))
+//                        .subscribeOn(Schedulers.io())
+//                        .blockingGet().toString());
+//            }
+//   log.info("getAccounts-->" + accounts.toString());
+//   return accounts;
    }
 
 /*

@@ -4,7 +4,6 @@ import com.atmdeposit.atm.model.dto.AtmDepositRequest;
 import com.atmdeposit.atm.model.dto.AtmDepositResponse;
 import com.atmdeposit.atm.model.entity.Account;
 import com.atmdeposit.atm.repository.service.AtmDepositService;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import io.reactivex.Single;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,7 +43,7 @@ public class AtmDepositController {
   @PostMapping("/test")
   public Single<List<Account>>
   Test() throws Exception {
-    return Single.just(atmDepositService.getAccountTests());
+    return Single.just(atmDepositService.getPruebas());
   }
 
 }
