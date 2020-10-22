@@ -16,6 +16,7 @@ import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.implementation.bytecode.Throw;
 
 import org.h2.command.dml.MergeUsing.WhenMatched;
 import org.junit.jupiter.api.BeforeAll;
@@ -176,12 +177,12 @@ public class AtmDepositServiceImplTest {
 
 	}
 
-	@Test
-	void getCardTest() throws CardException {
+ @Test
+ void getCardTest_Streamfalse() throws CardException {
 
-		assertThat(cards, hasSize(3));
-	}
-
+    List<Card> cardtest =  cardClienteRest.getCards(Mockito.anyString());
+    assertThat(cardtest, notNullValue());
+ }
 //	@Test
 //	public void getAccountsTest() {
 //

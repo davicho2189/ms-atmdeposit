@@ -53,8 +53,8 @@ public class AtmDepositServiceImpl implements AtmDepositService {
   /**
    * getInformacionAtm.
    **/
-  public Single<AtmDepositResponse> getInformacionAtm(String documentNumber)
-      throws PersonException, AccountException, CardException, FingerPrintException {
+  public Single<AtmDepositResponse> getInformacionAtm(String documentNumber) 
+          throws PersonException, AccountException, CardException, FingerPrintException {
 
     AtmDepositResponse atmDepositResponse = new AtmDepositResponse();
     List<AccountDto> accountDtos = new ArrayList<>();
@@ -84,8 +84,7 @@ public class AtmDepositServiceImpl implements AtmDepositService {
   }
 
   public List<Card> getCard(String documentNumber) throws CardException {
-    return cardClienteRest.getCards(documentNumber).stream().filter(x -> x.getActive() == true)
-        .collect(Collectors.toList());
+    return cardClienteRest.getCards(documentNumber);
   }
 
   /**
