@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -40,6 +41,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -98,18 +100,27 @@ public class AtmDepositServiceImplTest {
 		fingerPrint = new FingerPrint("core", true);
 	}
 	
-//	@Test
-//	public void getInformacionAtmTest_stream()
-//			throws AccountException, PersonException, FingerPrintException, CardException {
-//			
-//		List<Account> accountsStream = new ArrayList();
-//		List<AccountDto> accountDtoStream = new ArrayList(); 	
-//		
-//		accountsStream.stream()
-//		    .map(ac -> 
-//		    accountDtoStream.add(ArgumentMatchers.any(AccountDto.class)))
-//				.collect(Collectors.toList());
-//	}
+	/*Sirve para testear streams*/
+	Function<List<Account>, List<AccountDto>> parseAccountDto = 
+			accountsStream -> accountDtos = accounts.stream().map(ac -> new AccountDto(ac.getAccountNumber()))   
+		    .collect(Collectors.toList());
+	
+	Function<List<Account>, Double > sumAmount = 
+					accountsStream -> accounts.stream().mapToDouble(x -> x.getAmount()).sum();		
+				
+	@Test
+	public void getInformacionAtmTest_stream()
+			throws AccountException, PersonException, FingerPrintException, CardException {		
+		
+		 		
+		List<AccountDto> accountDtoStream = parseAccountDto.apply(accounts);
+		Double suma = sumAmount.apply(accounts);
+		
+		assertNotEquals(0, suma);
+		assertThat(accountDtoStream, notNullValue());
+		
+		
+	}
 	
 
 	@Test
@@ -133,7 +144,7 @@ public class AtmDepositServiceImplTest {
 		Person persontte = new Person(1, "10000000", true, true);
 		FingerPrint fingerPrintte = new FingerPrint("core", true);
 		when(personsClienteRest.getPerson(Mockito.anyString())).thenReturn(persontte);
-		when(fingerPrintRest.getFingerPrint(ArgumentMatchers.any(FingerPrintRequest.class))).thenReturn(fingerPrintte);
+		when(fingerPrintRest.getFingerPrint(ArgumentMatchers.any(FingerPrintRequest.class))).thenReturn(fingerPrintte);		
 		
 		Single<AtmDepositResponse> objReactivo = atmDepositServiceImplTest.getInformacionAtm("10000000");
 		assertEquals(true, persontte.getFingerprint());
@@ -146,7 +157,7 @@ public class AtmDepositServiceImplTest {
 
 		lenient().when(atmDepositServiceImplTest.getPerson("10000000")).thenReturn(person);
 		lenient().when(atmDepositServiceImplTest.getFingerPrint(person)).thenReturn(fingerPrint);
-		lenient().when(atmDepositServiceImplTest.getFingerPrintReniec(person)).thenReturn(fingerPrint);
+		lenient().when(atmDepositServiceImplTest.getFingerPrintReniec(person)).thenReturn(fingerPrint);		
 		atmDepositResponse.setFingerprintEntityName("core");
 		atmDepositResponse.setValidAccounts(accountDtos);
 		atmDepositResponse.setCustomerAmount(2000.00);

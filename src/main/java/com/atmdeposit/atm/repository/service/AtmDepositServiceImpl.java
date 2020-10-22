@@ -59,6 +59,7 @@ public class AtmDepositServiceImpl implements AtmDepositService {
     AtmDepositResponse atmDepositResponse = new AtmDepositResponse();
     List<AccountDto> accountDtos = new ArrayList<>();
     Person person = getPerson(documentNumber);
+    Double suma =0.0;
 
     FingerPrint fingerPrint = person.getFingerprint() ?
             getFingerPrint(person) : getFingerPrintReniec(person);
@@ -66,12 +67,13 @@ public class AtmDepositServiceImpl implements AtmDepositService {
     List<Card> cards = getCard(documentNumber);
 
     final List<Account> accounts = getAccounts(cards);
-    accounts.stream()
-    .map(ac -> accountDtos.add(new AccountDto(ac.getAccountNumber()))).collect(Collectors.toList());
+    accountDtos = accounts.stream().map(ac -> new AccountDto(ac.getAccountNumber()))   
+    .collect(Collectors.toList());
 
     atmDepositResponse.setFingerprintEntityName(fingerPrint.getEntityName());
     atmDepositResponse.setValidAccounts(accountDtos);
-    atmDepositResponse.setCustomerAmount(accounts.stream().mapToDouble(x -> x.getAmount()).sum());
+    suma = accounts.stream().mapToDouble(x -> x.getAmount()).sum();
+    atmDepositResponse.setCustomerAmount(suma);
 
     return Single.just(atmDepositResponse).subscribeOn(Schedulers.io());
   }
