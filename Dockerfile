@@ -1,5 +1,6 @@
-FROM openjdk:12
+FROM openjdk:8-jdk-alpine
 VOLUME /tmp
 EXPOSE 8080
-ADD ./target/com-atmdeposit-atm-0.0.1-SNAPSHOT.jar atmdeposit-item.jar
-ENTRYPOINT ["java","-jar","/servicio-item.jar"]
+ARG JAR_FILE=target/com-atmdeposit-atm-0.0.1-SNAPSHOT.jar atmdeposit-atm.jar
+ADD ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]

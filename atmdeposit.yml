@@ -1,0 +1,42 @@
+#Definir pod
+apiVersion: apps/v1
+kind: deployment
+metadata:
+  name: msatmdeposit
+  labels:
+    app: msatmdeposit
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: msatmdeposit
+        template:
+        metadata:
+        labels:
+          app: msatmdeposit
+          spec:
+          containers:
+          name: msatmdeposit
+          image: 123
+
+          resources:
+          requests:
+          memory: "256Mi"
+          cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+    imagePullSecrets:
+      name: regcred
+      ##################
+    kind :  Service
+    apiVersion: v1   
+    metadata:
+      name: msatmdeposit
+    spec:
+      selector:
+        app: msatmdeposit
+      ports:
+      - port: 80
+        targetPort: <Target Port>
+    

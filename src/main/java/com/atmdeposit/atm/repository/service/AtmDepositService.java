@@ -8,7 +8,6 @@ import com.atmdeposit.atm.model.exceptions.CardException;
 import com.atmdeposit.atm.model.exceptions.FingerPrintException;
 import com.atmdeposit.atm.model.exceptions.PersonException;
 import io.reactivex.Single;
-
 import java.util.List;
 
 public interface AtmDepositService {

@@ -1,14 +1,5 @@
 package com.atmdeposit.atm.repository.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import io.reactivex.Observable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.atmdeposit.atm.clientes.AccountClienteRest;
 import com.atmdeposit.atm.clientes.CardClienteRest;
 import com.atmdeposit.atm.clientes.FingerPrintReniecRest;
@@ -25,11 +16,16 @@ import com.atmdeposit.atm.model.exceptions.AccountException;
 import com.atmdeposit.atm.model.exceptions.CardException;
 import com.atmdeposit.atm.model.exceptions.FingerPrintException;
 import com.atmdeposit.atm.model.exceptions.PersonException;
-
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import rx.Scheduler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 
 @Slf4j
 @Service
@@ -58,11 +54,11 @@ public class AtmDepositServiceImpl implements AtmDepositService {
 
     AtmDepositResponse atmDepositResponse = new AtmDepositResponse();
     List<AccountDto> accountDtos = new ArrayList<>();
+    
     Person person = getPerson(documentNumber);
-    Double suma =0.0;
-
-    FingerPrint fingerPrint = person.getFingerprint() ?
-            getFingerPrint(person) : getFingerPrintReniec(person);
+    
+    FingerPrint fingerPrint = person.getFingerprint() 
+        ? getFingerPrint(person) : getFingerPrintReniec(person);
 
     List<Card> cards = getCard(documentNumber);
 
@@ -72,6 +68,7 @@ public class AtmDepositServiceImpl implements AtmDepositService {
 
     atmDepositResponse.setFingerprintEntityName(fingerPrint.getEntityName());
     atmDepositResponse.setValidAccounts(accountDtos);
+    Double suma = 0.0;
     suma = accounts.stream().mapToDouble(x -> x.getAmount()).sum();
     atmDepositResponse.setCustomerAmount(suma);
 
@@ -96,10 +93,12 @@ public class AtmDepositServiceImpl implements AtmDepositService {
     List<Account> accounts = new ArrayList<>();
 
     cards.parallelStream()
-            .map(c->accounts.add(accountClienteRest.getAccount(c.getCardNumber())))
+            .map(c -> accounts.add(accountClienteRest.getAccount(c.getCardNumber())))
             .collect(Collectors.toList());
-     log.info("getAccounts-->" + accounts.toString());
-     return accounts;
+    
+    log.info("getAccounts-->" + accounts.toString());
+     
+    return accounts;
   }
 
   
@@ -108,7 +107,8 @@ public class AtmDepositServiceImpl implements AtmDepositService {
    ***/
   public FingerPrint getFingerPrint(Person person)
       throws FingerPrintException {
-      return fingerPrintRest.getFingerPrint(new FingerPrintRequest(person.getDocument()));
+    
+    return fingerPrintRest.getFingerPrint(new FingerPrintRequest(person.getDocument()));
   }
 
   /**
@@ -116,39 +116,40 @@ public class AtmDepositServiceImpl implements AtmDepositService {
    ***/
   public FingerPrint getFingerPrintReniec(Person person)
           throws FingerPrintException {
-//      personsClienteRest.insertFingerPrint(person.getId());
-      return fingerPrintReniecRest.getFingerPrint(new FingerPrintRequest(person.getDocument()));
+    
+    // personsClienteRest.insertFingerPrint(person.getId());
+    
+    return fingerPrintReniecRest.getFingerPrint(new FingerPrintRequest(person.getDocument()));
 
   }
+  
+  
+  @Override
+  public List<Account> getPruebas() {
 
-  /**
-   * getPruebas.
-   **/
-   @Override
-   public List<Account> getPruebas() {
-	   	
-	   List<Account> accounts = new ArrayList<Account>(Arrays.asList(new Account(1000.0, "1111222233334441XX"),
-				new Account(500.00, "1111222233334442XX"), new Account(1500.00, "1111222233334431XX")));
-	   
-	   return accounts;
-//   log.info("getAccounts--> Inicia");
-//   List<Account> accounts = new ArrayList<>();
-//   List<Card> cards = new ArrayList<>();
-//   cards.add(new Card("1111222233334441",true));
-//   cards.add(new Card("1111222233334442",true));
-//   cards.add(new Card("1111222233334443",true));
-//
-//            for (Card c : cards) {
-//                //Single.just(accountClienteRest.getAccount(c.getCardNumber()));
-//                log.info(Single.just(accountClienteRest.getAccount(c.getCardNumber()))
-//                        .subscribeOn(Schedulers.io())
-//                        .blockingGet().toString());
-//            }
-//   log.info("getAccounts-->" + accounts.toString());
-//   return accounts;
-   }
+    List<Account> accounts = 
+        new ArrayList<Account>(Arrays.asList(new Account(1000.0, "1111222233334441XX"),
+        new Account(500.00, "1111222233334442XX"), new Account(1500.00, "1111222233334431XX")));
 
-/*
+    return accounts;
+    // log.info("getAccounts--> Inicia");
+    // List<Account> accounts = new ArrayList<>();
+    // List<Card> cards = new ArrayList<>();
+    // cards.add(new Card("1111222233334441",true));
+    // cards.add(new Card("1111222233334442",true));
+    // cards.add(new Card("1111222233334443",true));
+    //
+    // for (Card c : cards) {
+    // //Single.just(accountClienteRest.getAccount(c.getCardNumber()));
+    // log.info(Single.just(accountClienteRest.getAccount(c.getCardNumber()))
+    // .subscribeOn(Schedulers.io())
+    // .blockingGet().toString());
+    // }
+    // log.info("getAccounts-->" + accounts.toString());
+    // return accounts;
+  }   
+
+  /*
   /**
    * getAccounts.
    **-/
