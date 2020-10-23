@@ -16,15 +16,18 @@ import com.atmdeposit.atm.model.exceptions.AccountException;
 import com.atmdeposit.atm.model.exceptions.CardException;
 import com.atmdeposit.atm.model.exceptions.FingerPrintException;
 import com.atmdeposit.atm.model.exceptions.PersonException;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rx.Scheduler;
 
 
 @Slf4j
@@ -127,26 +130,29 @@ public class AtmDepositServiceImpl implements AtmDepositService {
   @Override
   public List<Account> getPruebas() {
 
-    List<Account> accounts = 
-        new ArrayList<Account>(Arrays.asList(new Account(1000.0, "1111222233334441XX"),
-        new Account(500.00, "1111222233334442XX"), new Account(1500.00, "1111222233334431XX")));
+//    List<Account> accounts =
+//        new ArrayList<Account>(Arrays.asList(new Account(1000.0, "1111222233334441XX"),
+//        new Account(500.00, "1111222233334442XX"), new Account(1500.00, "1111222233334431XX")));
+//
+//    return accounts;
+     log.info("getAccounts--> Inicia");
 
-    return accounts;
-    // log.info("getAccounts--> Inicia");
-    // List<Account> accounts = new ArrayList<>();
-    // List<Card> cards = new ArrayList<>();
-    // cards.add(new Card("1111222233334441",true));
-    // cards.add(new Card("1111222233334442",true));
-    // cards.add(new Card("1111222233334443",true));
-    //
-    // for (Card c : cards) {
-    // //Single.just(accountClienteRest.getAccount(c.getCardNumber()));
-    // log.info(Single.just(accountClienteRest.getAccount(c.getCardNumber()))
-    // .subscribeOn(Schedulers.io())
-    // .blockingGet().toString());
-    // }
-    // log.info("getAccounts-->" + accounts.toString());
-    // return accounts;
+     List<Card> cards = new ArrayList<>();
+     cards.add(new Card("1111222233334441",true));
+     cards.add(new Card("1111222233334442",true));
+     cards.add(new Card("1111222233334443",true));
+     List<Account> accounts = new ArrayList<>();
+      //accountClienteRest.getAccount(c.getCardNumber())
+     Observable.just(cards)
+             .subscribeOn(Schedulers.io())
+             .flatMapIterable(x->x)
+             .map(c->
+                     Single.just(accountClienteRest.getAccount(c.getCardNumber())).subscribeOn(Schedulers.io())
+             )
+             .subscribe(account -> accounts.add(account.blockingGet()));
+
+    return  accounts;
+
   }   
 
   /*

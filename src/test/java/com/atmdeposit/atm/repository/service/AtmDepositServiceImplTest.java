@@ -99,8 +99,8 @@ public class AtmDepositServiceImplTest {
 
     fingerPrint = new FingerPrint("core", true);
   }
-
-  /* Sirve para testear streams */
+  
+//  /* Sirve para testear streams */
   Function<List<Account>, List<AccountDto>> parseAccountDto = 
       accountsStream -> accountDtos = accounts.stream()
       .map(ac -> new AccountDto(ac.getAccountNumber())).collect(Collectors.toList());
@@ -113,6 +113,7 @@ public class AtmDepositServiceImplTest {
       throws AccountException, PersonException, FingerPrintException, CardException {
 
     List<AccountDto> accountDtoStream = parseAccountDto.apply(accounts);
+	  
     Double suma = sumAmount.apply(accounts);
 
     assertNotEquals(0, suma);
